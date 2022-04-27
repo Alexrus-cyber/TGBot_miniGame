@@ -17,7 +17,6 @@ public class Bot extends TelegramLongPollingBot {
 
    public Random rnd = new Random();
    public int a = rnd.nextInt(100);
-   //String[] arr = new String[1000];
     ArrayList<String> arrayList = new ArrayList<>();
 
     byte check = 0;
@@ -31,16 +30,13 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "@GameCasher_bot";
+        return System.getenv("BOT_NAME");
     }
 
     @Override
     public String getBotToken() {
-        return "5354076694:AAEFd2qD8VCVpb-Sg9watarCsAeEVuTbbhA";
+        return System.getenv("BOT_TOKEN");
     }
-
-
-
 
     @SneakyThrows
     @Override
@@ -59,10 +55,9 @@ public class Bot extends TelegramLongPollingBot {
                    case "/play" :
                      arrayList.add(message.getChatId().toString());
                      check = (byte)(check + 1);
-                    // arr[0] = message.getChatId().toString();
                      execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Привет ты в игре 'Отгадай число от 0 до 100'. Чтобы выйти из игры пропиши /exit. Твой id = " + message.getChatId().toString()).replyToMessageId(message.getMessageId()).build());
-                    break;
-                   case "/exit" :
+                     break;
+                     case "/exit" :
                        arrayList.remove(message.getChatId().toString());
                        check = (byte)(check - 1);;
                        execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Вы вышли из игры").replyToMessageId(message.getMessageId()).build());
@@ -101,7 +96,4 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 }else{ execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Бро зачем?").build());}
             }
-
-
-
 }
