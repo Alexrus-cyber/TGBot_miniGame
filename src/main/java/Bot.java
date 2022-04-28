@@ -8,20 +8,83 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 
 public class Bot extends TelegramLongPollingBot {
 
    public Random rnd = new Random();
    public int a = rnd.nextInt(100);
+   String id;
+
+   Set<String> player = new Set<>() {
+       @Override
+       public int size() {
+           return 0;
+       }
+
+       @Override
+       public boolean isEmpty() {
+           return false;
+       }
+
+       @Override
+       public boolean contains(Object o) {
+           return false;
+       }
+
+       @Override
+       public Iterator<String> iterator() {
+           return null;
+       }
+
+       @Override
+       public Object[] toArray() {
+           return new Object[0];
+       }
+
+       @Override
+       public <T> T[] toArray(T[] a) {
+           return null;
+       }
+
+       @Override
+       public boolean add(String s) {
+           return false;
+       }
+
+       @Override
+       public boolean remove(Object o) {
+           return false;
+       }
+
+       @Override
+       public boolean containsAll(Collection<?> c) {
+           return false;
+       }
+
+       @Override
+       public boolean addAll(Collection<? extends String> c) {
+           return false;
+       }
+
+       @Override
+       public boolean retainAll(Collection<?> c) {
+           return false;
+       }
+
+       @Override
+       public boolean removeAll(Collection<?> c) {
+           return false;
+       }
+
+       @Override
+       public void clear() {
+
+       }
+   };
     ArrayList<String> arrayList = new ArrayList<>();
     String[] seasons  = new String[] {"Ты топ", "Чел хорош!", "А ты не плох!", "МЕГАСУПЕРАНСРАЛ"};
-    String[] sea  = new String[100];
-    byte check = 0;
 
     @SneakyThrows
     public static void main(String[] args) {
@@ -56,28 +119,22 @@ try {
             String command = message.getText().substring(commandEntity.get().getOffset(), commandEntity.get().getLength());
             switch (command){
                 case "/play" :
-                    arrayList.add(message.getFrom().getId().toString());
-                    check = (byte)(check + 1);
+                    id = message.getFrom().getId().toString();
+                    player.add(id);
                     execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Привет ты в игре 'Отгадай число от 0 до 100'. Чтобы выйти из игры пропиши /exit. Твой id = " + message.getFrom().getId().toString()).replyToMessageId(message.getMessageId()).build());
                     break;
                 case "/exit" :
-                    arrayList.remove(message.getFrom().getId().toString());
-                    check = 0;;
+                    player.remove(id);
                     execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Вы вышли из игры").replyToMessageId(message.getMessageId()).build());
             }
         }
     }
 
-    if (arrayList.get(0).equals(message.getFrom().getId().toString()) && message.hasText() && check == 1) {
-        sea[0] = Test(message);
+    if (player.contains(id) && message.hasText()) {
+       Test(message);
     }
-    else if (check > 1) {
-        for (int i = 0; i < arrayList.size(); i++) {
-            if (arrayList.get(i) != arrayList.get(i+1) && message.hasText() && sea[0] != sea[i+1] && check != 0) {
-                sea[i] = Test(message);
-            }else {check = 1;}
-        }
-    }
+
+
 } catch (TelegramApiException e) {
     e.printStackTrace();
 }
@@ -86,7 +143,7 @@ try {
 
 
 
-    private String Test(Message message) {
+    private void Test(Message message) {
         try {
             String beta = message.getText();
             int randomTech = rnd.nextInt(3);
@@ -106,10 +163,8 @@ try {
             } else {
                 execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Бро зачем?").build());
             }
-            return beta;
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            return null;
         }
     }
 }
