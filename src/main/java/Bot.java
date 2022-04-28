@@ -15,78 +15,9 @@ public class Bot extends TelegramLongPollingBot {
 
    public Random rnd = new Random();
    public int a = rnd.nextInt(100);
-   String id;
+   Set<String> players = new HashSet();
+   String[] seasons  = new String[] {"Ты топ", "Чел хорош!", "А ты не плох!", "МЕГАСУПЕРАНСРАЛ"};
 
-   Set<String> player = new Set<>() {
-       @Override
-       public int size() {
-           return 0;
-       }
-
-       @Override
-       public boolean isEmpty() {
-           return false;
-       }
-
-       @Override
-       public boolean contains(Object o) {
-           return false;
-       }
-
-       @Override
-       public Iterator<String> iterator() {
-           return null;
-       }
-
-       @Override
-       public Object[] toArray() {
-           return new Object[0];
-       }
-
-       @Override
-       public <T> T[] toArray(T[] a) {
-           return null;
-       }
-
-       @Override
-       public boolean add(String s) {
-           return false;
-       }
-
-       @Override
-       public boolean remove(Object o) {
-           return false;
-       }
-
-       @Override
-       public boolean containsAll(Collection<?> c) {
-           return false;
-       }
-
-       @Override
-       public boolean addAll(Collection<? extends String> c) {
-           return false;
-       }
-
-       @Override
-       public boolean retainAll(Collection<?> c) {
-           return false;
-       }
-
-       @Override
-       public boolean removeAll(Collection<?> c) {
-           return false;
-       }
-
-       @Override
-       public void clear() {
-
-       }
-   };
-    ArrayList<String> arrayList = new ArrayList<>();
-    String[] seasons  = new String[] {"Ты топ", "Чел хорош!", "А ты не плох!", "МЕГАСУПЕРАНСРАЛ"};
-
-    @SneakyThrows
     public static void main(String[] args) {
         Bot bot = new Bot();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -103,17 +34,15 @@ public class Bot extends TelegramLongPollingBot {
         return System.getenv("BOT_TOKEN");
     }
 
-    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()){
-                Goplay(update.getMessage());
-        }
+        if (update.hasMessage() && message.hasText())
+                goPlay(update.getMessage());
     }
 
-    private void Goplay(Message message){
+    private void goPlay(Message message){
 try {
-    if (message.hasText() && message.hasEntities()){
+    if (message.hasEntities()){
         Optional<MessageEntity> commandEntity = message.getEntities().stream().filter(e -> "bot_command".equals(e.getType())).findFirst();
         if (commandEntity.isPresent()){
             String command = message.getText().substring(commandEntity.get().getOffset(), commandEntity.get().getLength());
@@ -127,11 +56,13 @@ try {
                     player.remove(id);
                     execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Вы вышли из игры").replyToMessageId(message.getMessageId()).build());
             }
+            //Выход после обработки команды тк дальше идет проверка числа
+            return;
         }
     }
 
-    if (player.contains(id) && message.hasText()) {
-       Test(message);
+    if (player.contains(id)) {
+       checkAnswer(message);
     }
 
 
@@ -143,27 +74,20 @@ try {
 
 
 
-    private void Test(Message message) {
+    private void checkAnswer(Message message) {
         try {
             String beta = message.getText();
-            int randomTech = rnd.nextInt(3);
             Integer i1 = Integer.valueOf(beta);
             if (a > i1) {
-                execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Больше").build());
+               execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Больше").build());
             } else if (i1 > a) {
-                execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Меньше").build());
-            } else if (a == i1) {
-                String str = Integer.toString(a);
-                if (message.hasText()) {
-                    if (message.getText().equals(str)) {
-                        execute(SendMessage.builder().chatId(message.getChatId().toString()).text(seasons[randomTech]).build());
-                        a = rnd.nextInt(100);
-                    }
-                }
+               execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Меньше").build());
             } else {
-                execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Бро зачем?").build());
+               int randomTech = rnd.nextInt(3);
+               execute(SendMessage.builder().chatId(message.getChatId().toString()).text(seasons[randomTech]).build());
+               a = rnd.nextInt(100);
             }
-        } catch (TelegramApiException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
