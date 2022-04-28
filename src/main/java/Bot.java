@@ -79,8 +79,8 @@ try {
         }
     }
 } catch (TelegramApiException e) {
-        throw new RuntimeException(e);
-    }
+    e.printStackTrace();
+}
 
     }
 
@@ -108,8 +108,8 @@ try {
             }
             return beta;
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return null;
         }
-
     }
 }
