@@ -106,10 +106,10 @@ try {
             } else {
                 execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Бро зачем?").build());
             }
-
+            return beta;
         } catch (TelegramApiException e) {
-
+            throw new RuntimeException(e);
         }
-        return null;
+
     }
 }
