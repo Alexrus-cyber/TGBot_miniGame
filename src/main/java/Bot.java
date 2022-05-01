@@ -19,7 +19,6 @@ public class Bot extends TelegramLongPollingBot {
     String[] seasons  = new String[] {"Ты топ", "Чел хорош!", "А ты не плох!", "МЕГАСУПЕРАНСРАЛ"};
     String id;
 
-
     public static void main(String[] args) {
         try {
             Bot bot = new Bot();
@@ -50,13 +49,13 @@ public class Bot extends TelegramLongPollingBot {
 
     private void goPlay(Message message){
         try {
+            id = message.getFrom().getId().toString();
             if (message.hasEntities()){
             Optional<MessageEntity> commandEntity = message.getEntities().stream().filter(e -> "bot_command".equals(e.getType())).findFirst();
                 if (commandEntity.isPresent()){
                     String command = message.getText().substring(commandEntity.get().getOffset(), commandEntity.get().getLength());
                 switch (command){
                     case "/play" :
-                        id = message.getFrom().getId().toString();
                         players.add(id);
                         execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Привет ты в игре 'Отгадай число от 0 до 100'. Чтобы выйти из игры пропиши /exit. Твой id = " + id).replyToMessageId(message.getMessageId()).build());
                         break;
