@@ -1,4 +1,3 @@
-import lombok.SneakyThrows;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -20,11 +19,16 @@ public class Bot extends TelegramLongPollingBot {
     String[] seasons  = new String[] {"Ты топ", "Чел хорош!", "А ты не плох!", "МЕГАСУПЕРАНСРАЛ"};
     String id;
 
-    @SneakyThrows
+
     public static void main(String[] args) {
-        Bot bot = new Bot();
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        telegramBotsApi.registerBot(bot);
+        try {
+            Bot bot = new Bot();
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(bot);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -37,7 +41,7 @@ public class Bot extends TelegramLongPollingBot {
         return System.getenv("BOT_TOKEN");
     }
 
-    @SneakyThrows
+
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage())
@@ -48,13 +52,13 @@ public class Bot extends TelegramLongPollingBot {
         try {
             if (message.hasEntities()){
             Optional<MessageEntity> commandEntity = message.getEntities().stream().filter(e -> "bot_command".equals(e.getType())).findFirst();
-            if (commandEntity.isPresent()){
-                String command = message.getText().substring(commandEntity.get().getOffset(), commandEntity.get().getLength());
+                if (commandEntity.isPresent()){
+                    String command = message.getText().substring(commandEntity.get().getOffset(), commandEntity.get().getLength());
                 switch (command){
                     case "/play" :
                         id = message.getFrom().getId().toString();
                         players.add(id);
-                        execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Привет ты в игре 'Отгадай число от 0 до 100'. Чтобы выйти из игры пропиши /exit. Твой id = " + message.getFrom().getId().toString()).replyToMessageId(message.getMessageId()).build());
+                        execute(SendMessage.builder().chatId(message.getChatId().toString()).text("Привет ты в игре 'Отгадай число от 0 до 100'. Чтобы выйти из игры пропиши /exit. Твой id = " + id).replyToMessageId(message.getMessageId()).build());
                         break;
                     case "/exit" :
                     players.remove(id);
@@ -64,15 +68,12 @@ public class Bot extends TelegramLongPollingBot {
                 return;
             }
         }
-
-        if (players.contains(id)) {
-            checkAnswer(message);
+            if (players.contains(id)) {
+                checkAnswer(message);
+            }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
-
-} catch (TelegramApiException e) {
-    e.printStackTrace();
-}
-
     }
 
     private void checkAnswer(Message message) {
